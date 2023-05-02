@@ -6,43 +6,58 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
-const Chat = ({ route, navigation }) => {
+const Chat = ({ route, navigation, db, isConnected, storage }) => {
   //sets name and background color from start screen input and color picker
+  //Values called from signInUser() in Start.js
   const { name, color } = route.params;
 
   //used to set static messages for testing
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+    if (isConnected === true) {
+      if (unsubMessages) unsubMessages();
+      unsubMessages = null;
+
+      // pulls chats from the db and creates a date for each entry
+      const q = query(collection(db, "messages"), orderBy("creatdAt", "desc"));
+      unsubMessages = onSnapshot(q, (documentsSnapshot) => {
+        let newMessages = [];
+        documentsSnapshot.forEach((doc) => {
+          newMessages.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: new Date(doc.data().createdAt.toMillis()),
+          });
+        });
+        cacheMessages(newMessage);
+        setMessages(newMessages);
+      });
+    } else {
+      loadCachedMesages();
+    }
+
+    return () => {
+      if (unsubMessages) unsubMessages();
+    };
+  }, [isConnected]);
+
+  useEffect(() => {
     navigation.setOptions({ title: name });
-    //static message and system message
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "you have joined the chat",
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
   }, []);
 
   //when new message is sent it appends it to chat
   const onSend = (newMessages) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
-    );
+    addDoc(collection(db, "message"), newMessages[0]);
   };
 
   //creates styled text bubbles (left white, right black)
@@ -70,7 +85,8 @@ const Chat = ({ route, navigation }) => {
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: 1,
+          userId: route.params,
+          name: route.parms
         }}
       />
       {/*Keyboard covering text input fix */}

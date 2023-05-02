@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getAuth, signInAnonymously } from "firebase/auth";
 import {
   StyleSheet,
   Text,
@@ -14,6 +15,26 @@ import {
 const Start = ({ navigation }) => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("");
+
+  /*sign in the user anonymously
+  also sets name and background color
+  now the onPress to "start chatting" calls this function*/
+  const auth = getAuth();
+
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then(() => {
+        navigation.navigate("Chat", {
+          userID: result.user.uid,
+          name: name,
+          color: color,
+        });
+        Alert.alert("Signed in Successfully!");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, try again later.");
+      });
+  };
 
   return (
     //background image for app. starting screen is wraped
@@ -69,7 +90,7 @@ const Start = ({ navigation }) => {
           <Button
             style={styles.button}
             title="Start Chatting"
-            onPress={() => navigation.navigate("Chat", { name: name, color: color })}
+            onPress={signInUser}
           />
         </View>
       </View>
@@ -124,13 +145,13 @@ const styles = StyleSheet.create({
   radioButton: {
     height: 30,
     width: 30,
-    borderRadius: 15
+    borderRadius: 15,
   },
   button: {
     alignItems: "center",
     backgroundColor: "#DDD",
-    padding: 10
-  }
+    padding: 10,
+  },
 });
 
 export default Start;
