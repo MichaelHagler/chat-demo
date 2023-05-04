@@ -11,7 +11,7 @@ import {
   addDoc,
   onSnapshot,
   query,
-  where,
+  orderBy,
 } from "firebase/firestore";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
@@ -23,43 +23,29 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
   //used to set static messages for testing
   const [messages, setMessages] = useState([]);
 
-  let unsubMessages;
-
-  useEffect(() => {
-    if (isConnected === true) {
-      if (unsubMessages) unsubMessages();
-      unsubMessages = null;
-
-      // pulls chats from the db and creates a date for each entry
-      const q = query(collection(db, "messages"), orderBy("creatdAt", "desc"));
-      unsubMessages = onSnapshot(q, (documentsSnapshot) => {
-        let newMessages = [];
-        documentsSnapshot.forEach((doc) => {
-          newMessages.push({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: new Date(doc.data().createdAt.toMillis()),
-          });
-        });
-        cacheMessages(newMessage);
-        setMessages(newMessages);
-      });
-    } else {
-      loadCachedMesages();
-    }
-
-    return () => {
-      if (unsubMessages) unsubMessages();
-    };
-  }, [isConnected]);
 
   useEffect(() => {
     navigation.setOptions({ title: name });
-  }, []);
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const unsubMessages = onSnapshot(q, (docs) => {
+      let newMessages = [];
+      docs.forEach(doc => {
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis())
+        })
+      })
+      setMessages(newMessages);
+    })
+    return () => {
+      if (unsubMessages) unsubMessages();
+    }
+   }, []);
 
   //when new message is sent it appends it to chat
   const onSend = (newMessages) => {
-    addDoc(collection(db, "message"), newMessages[0]);
+    addDoc(collection(db, "messages"), newMessages[0]);
   };
 
   //creates styled text bubbles (left white, right black)
@@ -87,7 +73,7 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          userId: route.params,
+          _id: route.params.userID,
           name: route.parms
         }}
       />
