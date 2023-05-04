@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   StyleSheet,
-  Text,
   View,
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +14,9 @@ import {
 } from "firebase/firestore";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
+//offline storage so messages can be viewed offline
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const Chat = ({ route, navigation, db, isConnected, storage }) => {
   //sets name and background color from start screen input and color picker
   //Values called from signInUser() in Start.js
@@ -23,29 +25,63 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
   //used to set static messages for testing
   const [messages, setMessages] = useState([]);
 
+  let unsubMessages;
+
 
   useEffect(() => {
     navigation.setOptions({ title: name });
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-    const unsubMessages = onSnapshot(q, (docs) => {
-      let newMessages = [];
-      docs.forEach(doc => {
-        newMessages.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: new Date(doc.data().createdAt.toMillis())
-        })
-      })
-      setMessages(newMessages);
-    })
+    if (isConnected === true) {
+      if (unsubMessages) unsubMessages();
+      unsubMessages = null;
+      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+      unsubMessages = onSnapshot(q, (docs) => {
+        let newMessages = [];
+        docs.forEach((doc) => {
+          newMessages.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: new Date(doc.data().createdAt.toMillis()),
+          });
+        });
+        cacheMessages(newMessages);
+        setMessages(newMessages);
+      });
+    } else loadCachedMessages();
     return () => {
       if (unsubMessages) unsubMessages();
-    }
-   }, []);
+    };
+  }, [isConnected]);
 
-  //when new message is sent it appends it to chat
+  //loads the cached messages from AsyncStorage
+  const loadCachedMessages = async () => {
+    const cachedMessages = (await AsyncStorage.getItem("messages")) || [];
+    setMessages(JSON.parse(cachedMessages));
+  };
+  //store messages to AsyncStorage
+  const cacheMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  //function that appends sent messages to chat
+  const addMessagesItem = async (newMessage) => {
+    const newMessageRef = await addDoc(
+      collection(db, "messages"),
+      newMessage[0]
+    );
+    if (!newMessageRef.id) {
+      Alert.alert(
+        "There was an error sending your message. Please try again later"
+      );
+    }
+  };
+
+  //uses addMessageItem callback 
   const onSend = (newMessages) => {
-    addDoc(collection(db, "messages"), newMessages[0]);
+    addMessagesItem(newMessages);
   };
 
   //creates styled text bubbles (left white, right black)

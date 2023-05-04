@@ -13,6 +13,9 @@ import { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+// importing async storage for offline use
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 // react native net info to check connection status
 import { useNetInfo } from "@react-native-community/netinfo";
 
@@ -27,7 +30,10 @@ const App = () => {
   useEffect(() => {
     if (connectionStatus.isConnected === false) {
       Alert.alert("Connection Lost");
-    } else connectionStatus.isConnected === true;
+      disableNetwork(db);
+    } else if (connectionStatus.isConnected === true) {
+      enableNetwork(db);
+    }
   }, [connectionStatus.isConnected]);
 
   const firebaseConfig = {
