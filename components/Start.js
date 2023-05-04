@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert
 } from "react-native";
 
 const Start = ({ navigation }) => {
@@ -23,7 +24,7 @@ const Start = ({ navigation }) => {
 
   const signInUser = () => {
     signInAnonymously(auth)
-      .then(() => {
+      .then((result) => {
         navigation.navigate("Chat", {
           userID: result.user.uid,
           name: name,

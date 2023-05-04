@@ -23,6 +23,8 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
   //used to set static messages for testing
   const [messages, setMessages] = useState([]);
 
+  let unsubMessages;
+
   useEffect(() => {
     if (isConnected === true) {
       if (unsubMessages) unsubMessages();
