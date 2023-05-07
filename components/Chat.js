@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
 import {
   collection,
   addDoc,
@@ -12,7 +7,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 
 //offline storage so messages can be viewed offline
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,16 +22,15 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
 
   let unsubMessages;
 
-
   useEffect(() => {
-    navigation.setOptions({ title: name });
     if (isConnected === true) {
       if (unsubMessages) unsubMessages();
       unsubMessages = null;
+
       const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-      unsubMessages = onSnapshot(q, (docs) => {
+      unsubMessages = onSnapshot(q, (documentsSnapshot) => {
         let newMessages = [];
-        docs.forEach((doc) => {
+        documentsSnapshot.forEach((doc) => {
           newMessages.push({
             id: doc.id,
             ...doc.data(),
@@ -46,7 +40,10 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
         cacheMessages(newMessages);
         setMessages(newMessages);
       });
-    } else loadCachedMessages();
+    } else {
+      loadCachedMessages();
+    }
+
     return () => {
       if (unsubMessages) unsubMessages();
     };
@@ -66,22 +63,19 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
     }
   };
 
-  //function that appends sent messages to chat
-  const addMessagesItem = async (newMessage) => {
-    const newMessageRef = await addDoc(
-      collection(db, "messages"),
-      newMessage[0]
-    );
-    if (!newMessageRef.id) {
-      Alert.alert(
-        "There was an error sending your message. Please try again later"
-      );
-    }
+  useEffect(() => {
+    navigation.setOptions({ title: name });
+  }, []);
+
+  //uses addMessageItem callback
+  const onSend = (newMessages) => {
+    addDoc(collection(db, "messages"), newMessages[0]);
   };
 
-  //uses addMessageItem callback 
-  const onSend = (newMessages) => {
-    addMessagesItem(newMessages);
+  //disable chat bar when app is offline
+  const renderInputToolbar = (props) => {
+    if (isConnected) return <InputToolbar {...props} />;
+    else return null;
   };
 
   //creates styled text bubbles (left white, right black)
@@ -105,12 +99,13 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
     //Background color has been set from start screen
     <View style={[styles.container, { backgroundColor: color }]}>
       <GiftedChat
+      renderInputToolbar={renderInputToolbar}
         messages={messages}
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
           _id: route.params.userID,
-          name: route.parms
+          name: route.parms,
         }}
       />
       {/*Keyboard covering text input fix */}

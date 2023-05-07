@@ -4,7 +4,7 @@ import Chat from "./components/Chat";
 
 //firestore initialization
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 import { useEffect } from "react";
@@ -12,9 +12,6 @@ import { useEffect } from "react";
 // import react Navigation
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-// importing async storage for offline use
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // react native net info to check connection status
 import { useNetInfo } from "@react-native-community/netinfo";
