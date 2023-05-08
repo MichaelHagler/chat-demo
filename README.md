@@ -81,3 +81,23 @@
     You should see your device in your device manager and when you click the Play button it will start your device.
   </li>
 </ol>
+
+<h3>Dependencies</h3>
+<p>Your package.json needs these</p>
+<p>{
+    "@react-native-async-storage/async-storage": "1.17.11",
+    "@react-native-community/netinfo": "9.3.7",
+    "@react-navigation/native": "^6.1.6",
+    "@react-navigation/native-stack": "^6.9.12",
+    "expo": "~48.0.11",
+    "expo-status-bar": "~1.4.4",
+    "firebase": "^9.21.0",
+    "react": "18.2.0",
+    "react-native": "0.71.7",
+    "react-native-gifted-chat": "^2.0.1",
+    "react-native-safe-area-context": "4.5.0",
+    "react-native-screens": "~3.20.0",
+    "expo-image-picker": "~14.1.1",
+    "expo-location": "~15.1.1",
+    "react-native-maps": "1.3.2"}
+</p>
