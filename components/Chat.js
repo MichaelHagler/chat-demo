@@ -1,4 +1,4 @@
-import CustomActions from "CustomAction.js";
+import CustomActions from "CustomActions.js";
 import { useEffect, useState } from "react";
 import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
 import {
@@ -100,10 +100,10 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
   };
 
   const renderCustomActions = (props) => {
-    return <CustomActions {...props} />;
+    return <CustomActions storage={storage} {...props} />;
   };
 
-  const runderCustomView = (props) => {
+  const renderCustomView = (props) => {
     const { currentMessage } = props;
     if (currentMessage.lcation) {
       return (
