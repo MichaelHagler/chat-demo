@@ -1,3 +1,4 @@
+import CustomActions from "CustomAction.js";
 import { useEffect, useState } from "react";
 import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
 import {
@@ -8,6 +9,9 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
+
+//a map view to be shown in chat bubble
+import MapView from 'react-native-maps';
 
 //offline storage so messages can be viewed offline
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -95,17 +99,46 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
     );
   };
 
+  const renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
+
+  const runderCustomView = (props) => {
+    const { currentMessage } = props;
+    if (currentMessage.lcation) {
+      return (
+        <MapView
+          style={{
+            width: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3,
+          }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: creentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     //Background color has been set from start screen
     <View style={[styles.container, { backgroundColor: color }]}>
       <GiftedChat
-      renderInputToolbar={renderInputToolbar}
-        messages={messages}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
+        renderInputToolbar={renderInputToolbar}
         renderBubble={renderBubble}
+        messages={messages}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: route.params.userID,
-          name: route.parms,
+          _id: userID,
+          name,
         }}
       />
       {/*Keyboard covering text input fix */}
