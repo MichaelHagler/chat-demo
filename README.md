@@ -2,7 +2,7 @@
 
 <h3>Key Features</h3>
 
-<ol>
+<ul>
   <li>
     users can input their name and choose background color for the chat screen.
   </li>
@@ -12,7 +12,7 @@
   <li>
     users can send pictures from their library or take a new photo, as well as send their location.
   </li>
-</ol>
+</ul>
 
 <h3>Setting up Expo</h3>
 <ol>
