@@ -1,5 +1,19 @@
 <h1>Chat App Documentation</h1>
 
+<h3>Key Features</h3>
+
+<ol>
+  <li>
+    users can input their name and choose background color for the chat screen.
+  </li>
+  <li>
+    The chat screen will dispaly conversations, and store them locally for offline use
+  </li>
+  <li>
+    users can send pictures from their library or take a new photo, as well as send their location.
+  </li>
+</ol>
+
 <h3>Setting up Expo</h3>
 <ol>
   <li>
