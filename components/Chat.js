@@ -1,4 +1,4 @@
-import CustomActions from "CustomActions.js";
+import CustomActions from "./CustomActions";
 import { useEffect, useState } from "react";
 import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
 import {
@@ -19,7 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Chat = ({ route, navigation, db, isConnected, storage }) => {
   //sets name and background color from start screen input and color picker
   //Values called from signInUser() in Start.js
-  const { name, color } = route.params;
+  const { name, color, userID } = route.params;
 
   //used to set static messages for testing
   const [messages, setMessages] = useState([]);
@@ -36,7 +36,7 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
         let newMessages = [];
         documentsSnapshot.forEach((doc) => {
           newMessages.push({
-            id: doc.id,
+            _id: doc.id,
             ...doc.data(),
             createdAt: new Date(doc.data().createdAt.toMillis()),
           });

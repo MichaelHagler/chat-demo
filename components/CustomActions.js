@@ -17,7 +17,7 @@ const CustomActions = ({
 }) => {
   const actionSheet = useActionSheet();
 
-  const onAcitonPress = () => {
+  const onActionPress = () => {
     const options = [
       "Choose From Library",
       "Take Picture",
